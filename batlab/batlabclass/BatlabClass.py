@@ -226,8 +226,8 @@ class Batlab:
                 value = 0
             self.setpoints[namespace] = value
         # make sure we cant turn on the current compensation control loop in firmware
-        if addr == SETTINGS and namespace == UNIT:
-            value &= ~0x0003
+        # if addr == SETTINGS and namespace == UNIT:
+        #     value &= ~0x0003
 
         try:
             with self.critical_write:

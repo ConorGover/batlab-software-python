@@ -110,8 +110,8 @@ class Channel:
             self.bat.write_verify(self.slot,CURRENT_SETPOINT,0)
             self.bat.write(self.slot,MODE,MODE_CHARGE)
             sleep(0.010)
-            self.bat.write_verify(self.slot,CURRENT_SETPOINT,batlab.encoder.Encoder(self.settings.prechrg_rate).assetpoint())
-            self.test_state = TS_PRECHARGE
+            # self.bat.write_verify(self.slot,CURRENT_SETPOINT,batlab.encoder.Encoder(self.settings.prechrg_rate).assetpoint())
+            self.test_state = TS_RAMPUP
         else: # Simple Discharge Test
             self.bat.write_verify(self.slot,CURRENT_SETPOINT,batlab.encoder.Encoder(self.settings.dischrg_rate).assetpoint())
             self.bat.write(self.slot,MODE,MODE_DISCHARGE)
@@ -362,7 +362,7 @@ class Channel:
                 print('Test Completed: Batlab',self.bat.sn,', Channel',self.slot,', Time:',datetime.datetime.now())
 
         elif self.test_state == TS_RAMPUP:
-            self.log_lvl2("RAMPUP")
+            # self.log_lvl2("RAMPUP")
             if self.settings.constant_voltage_enable == True: # handle constant voltage charge
                 stdimpedance = 0.050 / 128.0
                 try:
@@ -380,9 +380,9 @@ class Channel:
                     self.bat.write_verify(self.slot,CURRENT_SETPOINT,self.bat.setpoints[self.slot] - self.settings.constant_voltage_stepsize ) # scale down by 1/32th of an amp
                     self.test_state = TS_PRECHARGE
 
-            if self.bat.setpoints[self.slot] < self.bat.settings.prechrg_rate:
-                self.bat.setpoints[self.slot] += 1
-
+                if self.bat.setpoints[self.slot] < self.bat.settings.prechrg_rate:
+                    self.bat.setpoints[self.slot] += 1
+                    self.bat.write_verify(self.slot,CURRENT_SETPOINT,self.bat.setpoints[self.slot])
 
     def thd_channel(self):
         while(True):

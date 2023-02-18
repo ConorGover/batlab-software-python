@@ -3,17 +3,17 @@
   "individualCellLogs": 1,
   "prechargeRate": 4,
 
+  "constantVoltageEnable": 1,
+
   "chargeCurrentSafetyCutoff": 4.096,
   "chargeRate": 4,
   "chargeTemperatureCutoff": 55,
   "highVoltageCutoff": 4.2,
-  "constantVoltageChargeEnable": 1,
 
   "dischargeCurrentSafetyCutoff": 4.096,
   "dischargeRate": 2,
   "dischargeTemperatureCutoff": 55,
   "lowVoltageCutoff": 2.5,
-  "constantVoltageDischargeEnable": 1,
 
   "constantVoltageStepsize": 8,
   "constantVoltageSensitivity": 1,
