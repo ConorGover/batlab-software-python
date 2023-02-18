@@ -15,7 +15,7 @@
   "dischargeTemperatureCutoff": 55,
   "lowVoltageCutoff": 2.5,
 
-  "constantVoltageStepsize": 8,
+  "constantVoltageStepsize": 4,
   "constantVoltageSensitivity": 1,
 
   "numMeasurementCycles": 1,

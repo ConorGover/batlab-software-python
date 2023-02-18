@@ -380,9 +380,12 @@ class Channel:
                     self.bat.write_verify(self.slot,CURRENT_SETPOINT,self.bat.setpoints[self.slot] - self.settings.constant_voltage_stepsize ) # scale down by 1/32th of an amp
                     self.test_state = TS_PRECHARGE
 
-                if self.bat.setpoints[self.slot] < self.bat.settings.prechrg_rate:
-                    self.bat.setpoints[self.slot] += 1
+                if self.bat.setpoints[self.slot] < batlab.encoder.Encoder(self.settings.prechrg_rate).assetpoint():
+                    self.bat.setpoints[self.slot] += 4
                     self.bat.write_verify(self.slot,CURRENT_SETPOINT,self.bat.setpoints[self.slot])
+                else:
+                    self.test_state = TS_PRECHARGE
+
 
     def thd_channel(self):
         while(True):
