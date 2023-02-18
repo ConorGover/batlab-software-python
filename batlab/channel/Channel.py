@@ -497,9 +497,9 @@ class Channel:
                                 self.last_impedance_time = datetime.datetime.now()
                                 self.zcnt += 1
                                 self.zavg += (z - self.zavg) / self.zcnt
-                                logstr = str(self.name) + ',' + str(self.bat.sn) + ',' + str(self.slot) + ',' + str(ts) + ',' + '{:.4f}'.format(self.vprev) + ',' + '{:.4f}'.format(self.iprev) + ',' + '{:.4f}'.format(t) + ',' + '{:.4f}'.format(z) + ',' + '{:.4f}'.format(e) + ',' + '{:.4f}'.format(q) + ',' + state + ',,,,,,,' + ',,' + '{:.4f}'.format(self.vcc) + ',' + str(op_raw) + ',' + str(sp_raw) + ',' + str(dty)
+                                logstr = str(self.name) + ',' + str(self.bat.sn) + ',' + str(self.slot) + ',' + str(ts) + ',' + '{:.4f}'.format(self.vprev) + ',' + '{:.4f}'.format(self.iprev) + ',' + '{:.4f}'.format(t) + ',' + '{:.4f}'.format(z) + ',' + '{:.4f}'.format(e) + ',' + '{:.4f}'.format(q) + ',' + state + ',,,,,,,' + ',,' + '{:.4f}'.format(self.vcc) + ',' + '' + ',' + '' + ',' + str(dty)
                             else:
-                                logstr = str(self.name) + ',' + str(self.bat.sn) + ',' + str(self.slot) + ',' + str(ts) + ',' + '{:.4f}'.format(v) + ',' + '{:.4f}'.format(i) + ',' + '{:.4f}'.format(t) + ',,' + '{:.4f}'.format(e) + ',' + '{:.4f}'.format(q) + ',' + state + ',,,,,,,' + ',,' + '{:.4f}'.format(self.vcc) + ',' + str(op_raw) + ',' + str(sp_raw) + ',' + str(dty)
+                                logstr = str(self.name) + ',' + str(self.bat.sn) + ',' + str(self.slot) + ',' + str(ts) + ',' + '{:.4f}'.format(v) + ',' + '{:.4f}'.format(i) + ',' + '{:.4f}'.format(t) + ',,' + '{:.4f}'.format(e) + ',' + '{:.4f}'.format(q) + ',' + state + ',,,,,,,' + ',,' + '{:.4f}'.format(self.vcc) + ',' + '' + ',' + '' + ',' + str(dty)
                             
                             if self.settings.individual_cell_logs == 0:
                                 self.bat.logger.log(logstr,self.settings.logfile)
