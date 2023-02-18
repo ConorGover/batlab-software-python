@@ -361,6 +361,29 @@ class Channel:
                 self.test_state = TS_IDLE
                 print('Test Completed: Batlab',self.bat.sn,', Channel',self.slot,', Time:',datetime.datetime.now())
 
+        elif self.test_state == TS_RAMPUP:
+            self.log_lvl2("RAMPUP")
+            if self.settings.constant_voltage_enable == True: # handle constant voltage charge
+                stdimpedance = 0.050 / 128.0
+                try:
+                    stdimpedance = self.zavg / 128.0
+                    if(self.zavg > 0.5):
+                        stdimpedance = 0.5 / 128.0
+                    if(self.zavg < 0.01):
+                        stdimpedance = 0.01 / 128.0
+                    if(self.zavg == 0 or math.isnan(self.zavg)):
+                        stdimpedance = 0.050 / 128.0    
+                except:
+                    stdimpedance = 0.050 / 128.0
+                stdimpedance = stdimpedance * self.settings.constant_voltage_sensitivity
+                if v > (self.settings.high_volt_cutoff - (self.bat.setpoints[self.slot] * stdimpedance)) and self.bat.setpoints[self.slot] > self.settings.constant_voltage_stepsize: # if voltage is getting close to the cutoff point and current is flowing at greater than a trickle
+                    self.bat.write_verify(self.slot,CURRENT_SETPOINT,self.bat.setpoints[self.slot] - self.settings.constant_voltage_stepsize ) # scale down by 1/32th of an amp
+                    self.test_state = TS_PRECHARGE
+
+            if self.bat.setpoints[self.slot] < self.bat.settings.prechrg_rate:
+                self.bat.setpoints[self.slot] += 1
+
+
     def thd_channel(self):
         while(True):
             try:
@@ -386,32 +409,32 @@ class Channel:
                 with self.bat.critical_section:
                     #patch for current compensation problem in firmware versions <= 3
                     #fix is to move the current compensation control loop to software and turn it off in hardware.
-                    mode = self.bat.read(self.slot,MODE).asmode()
-                    i = self.bat.read(self.slot,CURRENT).ascurrent()
-                    p = self.bat.read(self.slot,CURRENT_SETPOINT)
-                    op = p.assetpoint() # actual operating point
-                    op_raw = p.data
-                    sp_raw = self.bat.setpoints[self.slot] #current setpoint
-                    sp = sp_raw / 128.0
-                    if mode == 'MODE_CHARGE' or mode == 'MODE_DISCHARGE':
-                        #print(mode,self.slot,i,op,sp)
-                        if i > 0 and (sp >= 0.35 or i < 0.37):
-                            if i < (sp - 0.01):
-                                op_raw += 1
-                            elif i > (sp + 0.01):
-                                op_raw -= 1
-                        if i > 4.02:
-                            op_raw -= 1
-                        if sp > 4.5:
-                            op_raw = 575
-                        if op_raw < self.settings.constant_voltage_stepsize and sp_raw > 0: #make sure that some amount of trickle current is flowing even if our setpoint is close to 0
-                            op_raw = self.settings.constant_voltage_stepsize
-                        if op_raw > 575 and sp_raw <= 575: #If for some reason we read a garbage op_raw, then don't make that our new setpoint
-                            op_raw = sp_raw
-                        if not math.isnan(op_raw):
-                            # writes to the firmware setpoitn will update the software setpoint, so we need to restore the software setpoint after we write 
-                            self.bat.write(self.slot,CURRENT_SETPOINT,op_raw)
-                            self.bat.setpoints[self.slot] = sp_raw
+                    # mode = self.bat.read(self.slot,MODE).asmode()
+                    # i = self.bat.read(self.slot,CURRENT).ascurrent()
+                    # p = self.bat.read(self.slot,CURRENT_SETPOINT)
+                    # op = p.assetpoint() # actual operating point
+                    # op_raw = p.data
+                    # sp_raw = self.bat.setpoints[self.slot] #current setpoint
+                    # sp = sp_raw / 128.0
+                    # if mode == 'MODE_CHARGE' or mode == 'MODE_DISCHARGE':
+                    #     #print(mode,self.slot,i,op,sp)
+                    #     if i > 0 and (sp >= 0.35 or i < 0.37):
+                    #         if i < (sp - 0.01):
+                    #             op_raw += 1
+                    #         elif i > (sp + 0.01):
+                    #             op_raw -= 1
+                    #     if i > 4.02:
+                    #         op_raw -= 1
+                    #     if sp > 4.5:
+                    #         op_raw = 575
+                    #     if op_raw < self.settings.constant_voltage_stepsize and sp_raw > 0: #make sure that some amount of trickle current is flowing even if our setpoint is close to 0
+                    #         op_raw = self.settings.constant_voltage_stepsize
+                    #     if op_raw > 575 and sp_raw <= 575: #If for some reason we read a garbage op_raw, then don't make that our new setpoint
+                    #         op_raw = sp_raw
+                    #     if not math.isnan(op_raw):
+                    #         # writes to the firmware setpoitn will update the software setpoint, so we need to restore the software setpoint after we write 
+                    #         self.bat.write(self.slot,CURRENT_SETPOINT,op_raw)
+                    #         self.bat.setpoints[self.slot] = sp_raw
                             
                     #reset the batlab watchdog timer (shuts off current flow if it reaches 0 --- 256 to 0 in about 30 seconds)
                     self.bat.write(UNIT,WATCHDOG_TIMER,WDT_RESET) #If firmware version is < 3, this command will not do anything

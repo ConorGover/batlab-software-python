@@ -77,7 +77,7 @@ class Batlab:
         thread.start()
         #print("batlab:",thread.getName())
         if self.read(0x05,0x01).value() == 257: #then we're not in the bootloader
-            # self.write(UNIT,SETTINGS,SET_TRIM_OUTPUT)  -- no longer do this because it is buggy in V3 Firmware.
+            self.write(UNIT,SETTINGS,SET_TRIM_OUTPUT)  #-- no longer do this because it is buggy in V3 Firmware.
             self.write(UNIT,WATCHDOG_TIMER,WDT_RESET) #do this so the watchdog is happy during these initialization commands
             self.write(CELL0,MODE,MODE_IDLE)
             self.write(CELL1,MODE,MODE_IDLE)
