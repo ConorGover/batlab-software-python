@@ -212,7 +212,7 @@ class Channel:
     def state_machine_cycletest(self,mode,v):
 
         if self.test_state == TS_CHARGEREST:
-            if self.i > 0.0:
+            if self.bat.read(self.slot,CURRENT).ascurrent() > 0.0:
                 self.bat.write(self.slot,CURRENT_SETPOINT,0)
                 sleep(1)
                 self.bat.write(self.slot,MODE,MODE_STOPPED)
@@ -303,7 +303,7 @@ class Channel:
 
 
         elif self.test_state == TS_DISCHARGEREST:
-            if self.i > 0.0:
+            if self.bat.read(self.slot,CURRENT).ascurrent() > 0.0:
                 self.bat.write(self.slot,CURRENT_SETPOINT,0)
                 sleep(1)
                 self.bat.write(self.slot,MODE,MODE_STOPPED)
