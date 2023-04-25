@@ -10,7 +10,7 @@
   "finalSOC": 0.3,
 
   "OCV_chargeInterval": 144,
-  "impedanceChargeInterval": 0,
+  "impedanceChargeInterval": 1000,
   "CVdischarge": 1,
 
   "constantVoltageEnable": 0,
