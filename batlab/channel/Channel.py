@@ -495,8 +495,8 @@ class Channel:
                             elif self.test_state == TS_DISCHARGE and self.final_discharge == False:
                                 self.q_prev_discharge = q
                         
-                        state = l_test_state[self.test_state]
-                        type = l_test_type[self.test_type]
+                        state_str = l_test_state[self.test_state]
+                        type_str = l_test_type[self.test_type]
 
                         # log the results
                         if (ts - self.last_lvl1_time).total_seconds() > self.settings.reporting_period:
@@ -511,13 +511,13 @@ class Channel:
                                     self.last_impedance_time = datetime.datetime.now()
                                     self.zcnt += 1
                                     self.zavg += (z - self.zavg) / self.zcnt
-                                    logstr = f"{self.name},{self.bat.sn},{self.slot},{ts},,,{t:.4f},{z:.4f},{q:.4f},IMP,{type},,{self.vcc:.4f}"
+                                    logstr = f"{self.name},{self.bat.sn},{self.slot},{ts},,,{t:.4f},{z:.4f},{q:.4f},IMP,{type_str},,{self.vcc:.4f}"
                                 elif self.settings.ocv_charge_interval > 0 and ((q - self.q_prev) > self.settings.ocv_charge_interval):
                                     self.q_prev = q
                                     self.ocv = self.bat.ocv(self.slot)
-                                    logstr = f"{self.name},{self.bat.sn},{self.slot},{ts},{self.ocv:.4f},{0},{t:.4f},,{q:.4f},OCV,{type},{self.runtime()},{self.vcc}"      
+                                    logstr = f"{self.name},{self.bat.sn},{self.slot},{ts},{self.ocv:.4f},{0},{t:.4f},,{q:.4f},OCV,{type_str},{self.runtime()},{self.vcc}"      
                                 else:
-                                    logstr = f"{self.name},{self.bat.sn},{self.slot},{ts},{v:.4f},{i:.4f},{t:.4f},,{q:.4f},{state},{type},{self.runtime()},{self.vcc:.4f}" 
+                                    logstr = f"{self.name},{self.bat.sn},{self.slot},{ts},{v:.4f},{i:.4f},{t:.4f},,{q:.4f},{state_str},{type_str},{self.runtime()},{self.vcc:.4f}" 
                             else:
                                 self.q_prev = q       
 
@@ -527,7 +527,7 @@ class Channel:
                             else:
                                 self.bat.logger.log(logstr,self.settings.cell_logfile + self.name + '.csv')
                         
-                        if state == TS_DISCHARGE and i == 0.0:
+                        if self.state == TS_DISCHARGE and i == 0.0:
                             self.bat.write(self.slot,MODE,MODE_STOPPED)
                             mode = MODE_STOPPED
 
