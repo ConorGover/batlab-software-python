@@ -501,22 +501,25 @@ class Channel:
                         # log the results
                         if (ts - self.last_lvl1_time).total_seconds() > self.settings.reporting_period:
                             self.last_lvl1_time = datetime.datetime.now()
-                            if self.settings.impedance_charge_interval > 0 and ((q - self.q_prev) > self.settings.impedance_charge_interval) and self.trickle_engaged == False:
-                                self.q_prev = q
-                                z = self.bat.impedance(self.slot)
-                                if math.isnan(z):
-                                    z = 0
-                                    print("error in impedance measurement")
-                                self.last_impedance_time = datetime.datetime.now()
-                                self.zcnt += 1
-                                self.zavg += (z - self.zavg) / self.zcnt
-                                logstr = f"{self.name},{self.bat.sn},{self.slot},{ts},,,{t:.4f},{z:.4f},{q:.4f},IMP,{type},,{self.vcc:.4f}"
-                            elif self.settings.ocv_charge_interval > 0 and ((q - self.q_prev) > self.settings.ocv_charge_interval):
-                                self.q_prev = q
-                                self.ocv = self.bat.ocv(self.slot)
-                                logstr = f"{self.name},{self.bat.sn},{self.slot},{ts},{self.ocv:.4f},{0},{t:.4f},,{q:.4f},OCV,{type},{self.runtime()},{self.vcc}"               
+                            if q >= self.q_prev:
+                                if self.settings.impedance_charge_interval > 0 and ((q - self.q_prev) > self.settings.impedance_charge_interval) and self.trickle_engaged == False:
+                                    self.q_prev = q
+                                    z = self.bat.impedance(self.slot)
+                                    if math.isnan(z):
+                                        z = 0
+                                        print("error in impedance measurement")
+                                    self.last_impedance_time = datetime.datetime.now()
+                                    self.zcnt += 1
+                                    self.zavg += (z - self.zavg) / self.zcnt
+                                    logstr = f"{self.name},{self.bat.sn},{self.slot},{ts},,,{t:.4f},{z:.4f},{q:.4f},IMP,{type},,{self.vcc:.4f}"
+                                elif self.settings.ocv_charge_interval > 0 and ((q - self.q_prev) > self.settings.ocv_charge_interval):
+                                    self.q_prev = q
+                                    self.ocv = self.bat.ocv(self.slot)
+                                    logstr = f"{self.name},{self.bat.sn},{self.slot},{ts},{self.ocv:.4f},{0},{t:.4f},,{q:.4f},OCV,{type},{self.runtime()},{self.vcc}"      
+                                else:
+                                    logstr = f"{self.name},{self.bat.sn},{self.slot},{ts},{v:.4f},{i:.4f},{t:.4f},,{q:.4f},{state},{type},{self.runtime()},{self.vcc:.4f}" 
                             else:
-                                logstr = f"{self.name},{self.bat.sn},{self.slot},{ts},{v:.4f},{i:.4f},{t:.4f},,{q:.4f},{state},{type},{self.runtime()},{self.vcc:.4f}" 
+                                self.q_prev = q       
 
 
                             if self.settings.individual_cell_logs == 0:
