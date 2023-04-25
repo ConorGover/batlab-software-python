@@ -527,7 +527,7 @@ class Channel:
                             else:
                                 self.bat.logger.log(logstr,self.settings.cell_logfile + self.name + '.csv')
                         
-                        if self.state == TS_DISCHARGE and i == 0.0:
+                        if self.test_state == TS_DISCHARGE and i == 0.0:
                             self.bat.write(self.slot,MODE,MODE_STOPPED)
                             mode = MODE_STOPPED
 
