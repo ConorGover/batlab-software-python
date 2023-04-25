@@ -529,6 +529,7 @@ class Channel:
                         
                         if state == TS_DISCHARGE and i == 0.0:
                             self.bat.write(self.slot,MODE,MODE_STOPPED)
+                            mode = MODE_STOPPED
 
                         # actually run the test state machine - decides what to do next
                         self.state_machine_cycletest(mode,v)
