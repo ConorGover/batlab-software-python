@@ -9,7 +9,7 @@
 
 # Options:
 #   -relative: optimize for minimal relative error (least squares) instead of minimal absolute error
-#       The default mode is to optimize for minimal absolute error, which leads to more accurate capacity measurements.
+#       The default mode is to optimize for minimal absolute error which leads to more accurate capacity measurements.
 #   -skip-warmup: skips the initial warmup period
 #   -skip-pretest: skips testing with the existing calibration values before calibrating
 #   -skip-posttest: skips testing with the new calibration values after calibrating
@@ -32,8 +32,6 @@ Fault = Exception
 min_current = 1/8
 max_current = 3    # This should be the planned discharge current for testing
 step = 1/8
-
-OPTIMIZE_FOR = "ABSOLUTE"
 
 currents = {}
 
@@ -104,10 +102,10 @@ def test_calibration():
             sleep(0.5)
         bat_current = bat_curr_sum / 8
         ps_current = ps_curr_sum / 8
-        if (OPTIMIZE_FOR == "ABSOLUTE") and not ('relative' in sys.argv):
-            error = (bat_current - ps_current)
+        if not 'relative' in sys.argv:
+            error = bat_current - ps_current
             print(f"Batlab says: {bat_current:.3f} A and PS says: {ps_current:.3f} A.   Error: {(error*1000):.0f} mA")
-        elif OPTIMIZE_FOR == "RELATIVE" or ('relative' in sys.argv):
+        elif 'relative' in sys.argv:
             error = (bat_current - ps_current) / ps_current
             print(f"Batlab says: {bat_current:.3f} A and PS says: {ps_current:.3f} A.   Error: {error:.3%}")
         
@@ -134,7 +132,7 @@ while v < 3:
     v = bl.read(i,VOLTAGE).asvoltage()
     i += 1
     if i > 4:
-        raise Fault('Ensure that Keithley power supply is connected to Batlab.')
+        raise Fault('Ensure that bench power supply is connected to Batlab.')
 cell = i - 1
 
 try:
@@ -200,10 +198,10 @@ try:
             bat_current = bat_curr_sum / 8
             ps_current = ps_curr_sum / 8
             currents[bat_current] = ps_current
-            if OPTIMIZE_FOR == "ABSOLUTE":
+            if not '-relative' in sys.argv:
                 error = (bat_current - ps_current)
                 print(f"Batlab says: {bat_current:.3f} A and PS says: {ps_current:.3f} A.   Error: {(error*1000):.0f} mA")
-            elif OPTIMIZE_FOR == "RELATIVE":
+            else:
                 error = (bat_current - ps_current) / ps_current
                 print(f"Batlab says: {bat_current:.3f} A and PS says: {ps_current:.3f} A.   Error: {error:.3%}")
 
@@ -219,7 +217,7 @@ try:
         # initial guess for the parameters: scale factor = 1, offset = 0
         params0 = np.array([1, 0])
 
-        if OPTIMIZE_FOR == "ABSOLUTE":
+        if not '-relative' in sys.argv:
             def objective(params, x, y):
                 m, b = params
                 return np.sum(np.abs(y - m*x - b))
@@ -234,7 +232,7 @@ try:
             constraint_dict = {'type': 'eq', 'fun': constraint, 'args': (x0, y0)}
             result = minimize(objective, params0, args=(x, y), constraints=constraint_dict)
 
-        elif OPTIMIZE_FOR == "RELATIVE":
+        else:
             def objective(params, x, y):
                 m, b = params
                 return np.sum((y - (m * x + b))**2)
